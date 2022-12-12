@@ -1,5 +1,5 @@
 import React from 'react'
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 export default function PopUp(props) {
 
@@ -10,27 +10,22 @@ export default function PopUp(props) {
     // content: <p>ACTUAL CONTENT</p>
     // }
 
-    const [seconds, setSeconds] = useState(1);
+    const intervalRef = useRef(); 
+
+    useEffect(()=>{
+        if (props.isTimed)
+            performTimedClose()
+    }, [])
 
     const performTimedClose = () => {
 
-        if (!(props.isTimed))
-        {
-            clearInterval(myInterval)
-            return;
-        }
-
-        setSeconds(seconds + 1);
-        if (seconds > 5)
-        {
-            clearInterval(myInterval)
+        intervalRef.current = setInterval(() => {
             props.close()
-        }
+        }, 5000);
     }
 
-    const myInterval = setInterval(performTimedClose, 1000);
-
     const closePopUp = () => {
+        clearInterval(intervalRef)
         props.close();
     }
 
