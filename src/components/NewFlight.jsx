@@ -1,11 +1,18 @@
 import React from 'react'
-// import { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import FlightPreview from './FlightPreview';
+import PopUp from './PopUp';
 
 export default function NewFlight(props) {
 
   const navigate = useNavigate()
+  const [showPopUp, setShowPopUp] = useState(false);
+  const [showSuccessPopUp, setShowSuccessPopUp] = useState(false);
+  const [popUpInfo, setPopUpInfo] = useState({
+    name: "",
+    content: <p>""</p>,
+  })
 
   const doesFlightExist = (id) => {
     for (let i = 0; i < props.flights.length; i++)
@@ -23,31 +30,51 @@ export default function NewFlight(props) {
 
     if (doesFlightExist(flightid))
     {
-      alert("There is already a flight with this id")
+      setPopUpInfo({
+        name: "Error!",
+        content: <p>There is already a flight with this id. 
+          <br/> Please make sure that this is the right id</p>,
+      })
+      setShowPopUp(true);
       return;
     }
     else if (flightid > 99999 || flightid < 0)
     {
-      alert("Flight id must be between 0 to 99999")
+      setPopUpInfo({
+        name: "Error!",
+        content: <p>Flight id must be between 0 to 99999</p>,
+      })
+      setShowPopUp(true);
       return;
     }
 
     if (companyName.length < 1)
     {
-      alert("Please enter the comany's name")
+      setPopUpInfo({
+        name: "Error!",
+        content: <p>Please enter the comany's name</p>,
+      })
+      setShowPopUp(true);
       return;
     }
 
     if (travelersNumber < 1 || travelersNumber > 450)
     {
-      alert("The amount of travelers must be between 1 to 450")
+      setPopUpInfo({
+        name: "Error!",
+        content: <p>The amount of travelers must be between 1 to 450</p>,
+      })
+      setShowPopUp(true);
       return;
     }
 
     props.addFlight({id: flightid, company: companyName, travelersNum: travelersNumber})
-    alert("Flight added! \nGoing back to the control panel")
-    navigate('/controlpanel')
-
+    setPopUpInfo({
+      name: "Flight added!",
+      content: <p>Flight added!
+        <br/> Exit to navigate back to the control panel.</p>,
+    })
+    setShowSuccessPopUp(true);
   }
 
   return (
@@ -84,6 +111,10 @@ export default function NewFlight(props) {
               <br />
             </div>
         </div>
+
+        {showPopUp ? <PopUp isTimed={false} close={()=>{setShowPopUp(!showPopUp)}} info={popUpInfo}/> : null}
+        {showSuccessPopUp ? <PopUp isTimed={false} close={()=>{setShowSuccessPopUp(!showSuccessPopUp); navigate('/controlpanel');}} info={popUpInfo}/> : null}
+
     </div>
   )
 }
